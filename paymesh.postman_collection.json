@@ -1,0 +1,376 @@
+{
+  "info": {
+    "name": "PayMesh Distributed Bill Payment Platform",
+    "description": "Comprehensive Postman Collection demonstrating full microservices flow: Service Discovery, JWT Auth, Optimistic Locking Wallet, Saga Orchestration, Compensating Rollbacks, Resilience4j Circuit Breakers, and Kafka Notifications.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('userId', jsonData.data.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice_pay\",\n  \"email\": \"alice@paymesh.io\",\n  \"password\": \"Secret123!\",\n  \"fullName\": \"Alice Smith\",\n  \"phoneNumber\": \"+1-555-0101\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('userId', jsonData.data.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice_pay\",\n  \"password\": \"Secret123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Wallet Management",
+      "item": [
+        {
+          "name": "Get Wallet Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "me"]
+            }
+          }
+        },
+        {
+          "name": "Credit / Top-up Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"amount\": 250.00,\n  \"referenceId\": \"TOPUP-MANUAL-001\",\n  \"description\": \"Direct Bank Topup\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/credit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "credit"]
+            }
+          }
+        },
+        {
+          "name": "Get Ledger Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/transactions/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "transactions", "user", "{{userId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Biller Directory",
+      "item": [
+        {
+          "name": "List Biller Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/billers/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "billers", "categories"]
+            }
+          }
+        },
+        {
+          "name": "List All Billers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/billers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "billers"]
+            }
+          }
+        },
+        {
+          "name": "Validate Biller Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"ELEC-CONED\",\n  \"customerAccountNumber\": \"1234567890\",\n  \"amount\": 85.50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/billers/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "billers", "validate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Payment Saga (Success Flow)",
+      "item": [
+        {
+          "name": "Execute Bill Payment (Saga Success)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Idempotency-Key", "value": "IDEMP-DEMO-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"billerCode\": \"ELEC-CONED\",\n  \"customerAccountNumber\": \"1234567890\",\n  \"amount\": 85.50,\n  \"currency\": \"USD\",\n  \"paymentMethod\": \"WALLET\",\n  \"idempotencyKey\": \"IDEMP-DEMO-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Verify Idempotency (Repeat identical request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Idempotency-Key", "value": "IDEMP-DEMO-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"billerCode\": \"ELEC-CONED\",\n  \"customerAccountNumber\": \"1234567890\",\n  \"amount\": 85.50,\n  \"currency\": \"USD\",\n  \"paymentMethod\": \"WALLET\",\n  \"idempotencyKey\": \"IDEMP-DEMO-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Get User Payment History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "me"]
+            }
+          }
+        },
+        {
+          "name": "Check Notification Logs (Kafka Dispatched)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "logs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Saga Rollback & Compensation Demo",
+      "item": [
+        {
+          "name": "Simulate Gateway Failure (Triggers Saga Wallet Refund)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Idempotency-Key", "value": "IDEMP-FAIL-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{userId}},\n  \"billerCode\": \"NET-VERIZON\",\n  \"customerAccountNumber\": \"1234567890\",\n  \"amount\": 99.00,\n  \"currency\": \"USD\",\n  \"paymentMethod\": \"WALLET\",\n  \"idempotencyKey\": \"IDEMP-FAIL-001\",\n  \"simulateGatewayFailure\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          }
+        },
+        {
+          "name": "Verify Wallet Refund Ledger after Rollback",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/transactions/user/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "transactions", "user", "{{userId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Resilience & Circuit Breaker",
+      "item": [
+        {
+          "name": "Get Mock Gateway Simulation Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/mock-gateway/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "mock-gateway", "config"]
+            }
+          }
+        },
+        {
+          "name": "Set Gateway Latency / Chaos Simulation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"failureRatePercent\": 70,\n  \"delayMs\": 2500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/mock-gateway/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "mock-gateway", "config"]
+            }
+          }
+        },
+        {
+          "name": "Inspect Payment Service Health & Circuit Breakers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

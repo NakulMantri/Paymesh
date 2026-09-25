@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8080']
+
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['user-service:8081']
+
+  - job_name: 'wallet-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['wallet-service:8082']
+
+  - job_name: 'biller-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['biller-service:8083']
+
+  - job_name: 'mock-gateway-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['mock-gateway-service:8084']
+
+  - job_name: 'payment-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['payment-service:8085']
+
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8086']

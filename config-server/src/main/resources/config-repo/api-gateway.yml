@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      routes:
+        # User Service Auth routes (Public)
+        - id: user-service-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/auth/**
+
+        # User Service Profile routes (Secured)
+        - id: user-service-users
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+
+        # Wallet Service routes (Secured)
+        - id: wallet-service
+          uri: lb://wallet-service
+          predicates:
+            - Path=/api/v1/wallets/**
+
+        # Biller Service routes (Secured)
+        - id: biller-service
+          uri: lb://biller-service
+          predicates:
+            - Path=/api/v1/billers/**
+
+        # Payment Service routes (Secured)
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+
+        # Mock Gateway Service routes
+        - id: mock-gateway-service
+          uri: lb://mock-gateway-service
+          predicates:
+            - Path=/api/v1/mock-gateway/**
+
+        # Notification Service routes
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
