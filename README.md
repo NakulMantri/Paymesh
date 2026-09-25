@@ -399,10 +399,3 @@ kubectl apply -f k8s/services.yaml
 
 ---
 
-## 💼 Resume Highlights & Interview Talking Points
-
-- **Microservices Architecture:** Built a distributed bill payment platform of 7 independent Spring Boot 3 microservices using Spring Cloud Gateway, Netflix Eureka discovery, and Apache Kafka.
-- **Distributed Saga Transactions:** Engineered an orchestration-based Saga pattern coordinating workflows across Wallet, Biller, and Gateway databases with automated compensating rollback transactions on processor failure.
-- **Fault Tolerance:** Implemented Resilience4j Circuit Breakers, TimeLimiters, and fallbacks on inter-service communications to isolate failures and eliminate cascading outages.
-- **Distributed Observability:** Configured end-to-end distributed tracing using Micrometer Tracing and Zipkin with Prometheus and Grafana for latency monitoring.
-- **Data Isolation & Concurrency:** Enforced database-per-service isolation across PostgreSQL instances and used JPA optimistic locking (`@Version`) to guarantee balance consistency during concurrent transactions.
