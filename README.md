@@ -374,16 +374,6 @@ Import `paymesh.postman_collection.json` into Postman to execute the pre-configu
 
 ---
 
-## 📈 Observability & Dashboards
-
-- **Eureka Registry UI**: [http://localhost:8761](http://localhost:8761)
-- **Zipkin Distributed Tracing**: [http://localhost:9411](http://localhost:9411)
-- **Prometheus Metrics**: [http://localhost:9090](http://localhost:9090)
-- **Grafana Dashboards**: [http://localhost:3000](http://localhost:3000) (`admin` / `admin`)
-- **API Gateway Actuator Health**: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
-
----
-
 ## ☸️ Kubernetes Manifests (Minikube)
 
 ```bash
